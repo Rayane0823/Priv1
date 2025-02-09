@@ -5,7 +5,7 @@ const moment = require("moment");
 const random = require("random");
 
 // Change the working directory to where your local repository is located
-const git = simpleGit("/Users/rohitaggarwal/Desktop/test/GitHub_Graph");
+const git = simpleGit("/Users/rayane/Desktop/priv/Priv1");
 
 const makeCommit = (n) => {
   if (n === 0) {
@@ -15,38 +15,40 @@ const makeCommit = (n) => {
         console.error("Error pushing to remote:", err);
       } else {
         console.log("Pushed changes to remote repository");
+        console.log("Result:", result); // Ajoutez ce log pour inspecter `result`
       }
     });
     return;
   }
 
-  const x = random.int(0, 54);
-  const y = random.int(0, 6);
+
   const DATE = moment()
-    .subtract(0, "y")
-    .add(1, "d")
-    .add(x, "w")
-    .add(y, "d")
-    .format();
+  .year(2025) 
+  .month(random.int(0, 4)) // Génère un mois aléatoire
+  .date(random.int(1, 28)) // Génère un jour aléatoire (limité à 28 pour éviter les problèmes avec février)
+  .hour(random.int(0, 23)) // Génère une heure aléatoire
+  .minute(random.int(0, 59)) // Génère une minute aléatoire
+  .second(random.int(0, 59)) // Génère une seconde aléatoire
+  .format();
 
   const data = {
     date: DATE,
   };
   console.log(DATE);
-
+  
   jsonfile.writeFile(FILE_PATH, data, () => {
     git
-      .add([FILE_PATH])
-      .commit(DATE, { "--date": DATE })
-      .push(["-u", "origin", "origin"], (err, result) => {
-        if (err) {
-          console.error("Error pushing to remote:", err);
-        } else {
-          console.log("Pushed changes to remote repository");
-          makeCommit(--n);
-        }
-      });
+    .add(["index.js", "package-lock.json", FILE_PATH])
+    .commit(`Commit du ${DATE}`, { "--date": DATE })
+    .push(["-u", "origin", "master"], (err, result) => {
+      if (err) {
+        console.error("Error pushing to remote:", err);
+      } else {
+        console.log("Pushed changes to remote repository", result);
+        makeCommit(--n);
+      }
+    });
   });
-};
+}
 
 makeCommit(120);
